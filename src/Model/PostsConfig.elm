@@ -1,8 +1,9 @@
 module Model.PostsConfig exposing (Change(..), PostsConfig, SortBy(..), applyChanges, defaultConfig, filterPosts, sortFromString, sortOptions, sortToCompareFn, sortToString)
 
 import Model.Post exposing (Post)
-import Time
+import Time exposing (posixToMillis)
 import List exposing (filter, sortWith, take)
+import Maybe exposing (withDefault)
 
 type SortBy
     = Score
@@ -48,7 +49,7 @@ sortToCompareFn sort =
         Title ->
             \postA postB -> compare postA.title postB.title
         Posted ->
-            \postA postB -> compare (Time.posixToMillis postB.time) (Time.posixToMillis postA.time)
+            \postA postB -> compare (posixToMillis postB.time) (posixToMillis postA.time)
         None ->
             \_ _ -> EQ
 
@@ -76,10 +77,10 @@ filterPosts config posts =
     let
         filteredPosts =
             posts
-                |> filter (\post -> if not config.showTextOnly then post.type_ /= "text" else True)
+                |> filter (\post -> if config.showTextOnly then post.type_ == "text" else True)
                 |> filter (\post -> if not config.showJobs then post.type_ /= "job" else True)
 
         sortedPosts =
-            List.sortWith (sortToCompareFn config.sortBy) filteredPosts
+            sortWith (sortToCompareFn config.sortBy) filteredPosts
     in
     take config.postsToShow sortedPosts

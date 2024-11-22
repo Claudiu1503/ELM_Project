@@ -14489,13 +14489,20 @@ var $author$project$ExampleTests$ModelPostIdsTests$suite = A2(
 		]));
 var $author$project$Model$PostsConfig$Score = {$: 'Score'};
 var $author$project$Model$PostsConfig$Title = {$: 'Title'};
-var $author$project$Model$PostsConfig$sortFromString = function (_v0) {
-	return _Debug_todo(
-		'Model.PostsConfig',
-		{
-			start: {line: 48, column: 5},
-			end: {line: 48, column: 15}
-		})('sortFromString');
+var $author$project$Model$PostsConfig$Posted = {$: 'Posted'};
+var $author$project$Model$PostsConfig$sortFromString = function (s) {
+	switch (s) {
+		case 'Score':
+			return $elm$core$Maybe$Just($author$project$Model$PostsConfig$Score);
+		case 'Title':
+			return $elm$core$Maybe$Just($author$project$Model$PostsConfig$Title);
+		case 'Posted':
+			return $elm$core$Maybe$Just($author$project$Model$PostsConfig$Posted);
+		case 'None':
+			return $elm$core$Maybe$Just($author$project$Model$PostsConfig$None);
+		default:
+			return $elm$core$Maybe$Nothing;
+	}
 };
 var $author$project$ExampleTests$ModelPostsConfigTests$suite = A2(
 	$elm_explorations$test$Test$describe,
@@ -24772,13 +24779,8 @@ var $author$project$PostsViewTests$SortBySelect = function (a) {
 	return {$: 'SortBySelect', a: a};
 };
 var $author$project$Model$PostsConfig$applyChanges = F2(
-	function (_v0, _v1) {
-		return _Debug_todo(
-			'Model.PostsConfig',
-			{
-				start: {line: 91, column: 5},
-				end: {line: 91, column: 15}
-			})('applyChanges');
+	function (_v0, config) {
+		return config;
 	});
 var $elm_explorations$test$Test$Runner$Failure$ListDiff = F2(
 	function (a, b) {
@@ -24820,14 +24822,52 @@ var $author$project$TestUtils$expectEach = F2(
 					$elm$core$List$length(l) - 1)),
 			l);
 	});
+var $author$project$Model$PostsConfig$sortToCompareFn = function (sort) {
+	switch (sort.$) {
+		case 'Score':
+			return F2(
+				function (postA, postB) {
+					return A2($elm$core$Basics$compare, postB.score, postA.score);
+				});
+		case 'Title':
+			return F2(
+				function (postA, postB) {
+					return A2($elm$core$Basics$compare, postA.title, postB.title);
+				});
+		case 'Posted':
+			return F2(
+				function (postA, postB) {
+					return A2(
+						$elm$core$Basics$compare,
+						$elm$time$Time$posixToMillis(postB.time),
+						$elm$time$Time$posixToMillis(postA.time));
+				});
+		default:
+			return F2(
+				function (_v1, _v2) {
+					return $elm$core$Basics$EQ;
+				});
+	}
+};
+var $elm$core$List$sortWith = _List_sortWith;
 var $author$project$Model$PostsConfig$filterPosts = F2(
-	function (_v0, _v1) {
-		return _Debug_todo(
-			'Model.PostsConfig',
-			{
-				start: {line: 108, column: 5},
-				end: {line: 108, column: 15}
-			})('filterPosts');
+	function (config, posts) {
+		var filteredPosts = A2(
+			$elm$core$List$filter,
+			function (post) {
+				return (!config.showJobs) ? (post.type_ !== 'job') : true;
+			},
+			A2(
+				$elm$core$List$filter,
+				function (post) {
+					return config.showTextOnly ? (post.type_ === 'text') : true;
+				},
+				posts));
+		var sortedPosts = A2(
+			$elm$core$List$sortWith,
+			$author$project$Model$PostsConfig$sortToCompareFn(config.sortBy),
+			filteredPosts);
+		return A2($elm$core$List$take, config.postsToShow, sortedPosts);
 	});
 var $elm_explorations$test$Expect$onFail = F2(
 	function (str, expectation) {
@@ -25247,7 +25287,6 @@ var $elm_explorations$test$Test$Html$Query$index = F2(
 				query,
 				$elm_explorations$test$Test$Html$Query$Internal$Index(position)));
 	});
-var $author$project$Model$PostsConfig$Posted = {$: 'Posted'};
 var $author$project$Model$PostsConfig$sortOptions = _List_fromArray(
 	[$author$project$Model$PostsConfig$Score, $author$project$Model$PostsConfig$Title, $author$project$Model$PostsConfig$Posted, $author$project$Model$PostsConfig$None]);
 var $author$project$PostsViewTests$suite = A2(
@@ -25951,7 +25990,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "\\\\.\\pipe\\elm_test-15884-1";
+var pipeFilename = "\\\\.\\pipe\\elm_test-13568-1";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 
