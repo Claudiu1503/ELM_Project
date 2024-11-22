@@ -5,18 +5,15 @@ import Html.Attributes exposing (scope)
 import Model.Post exposing (Post)
 import Time
 
-
 type SortBy
     = Score
     | Title
     | Posted
     | None
 
-
 sortOptions : List SortBy
 sortOptions =
     [ Score, Title, Posted, None ]
-
 
 sortToString : SortBy -> String
 sortToString sort =
@@ -25,7 +22,6 @@ sortToString sort =
         Title -> "Title"
         Posted -> "Posted"
         None -> "None"
-
 
 sortFromString : String -> Maybe SortBy
 sortFromString str =
@@ -36,7 +32,6 @@ sortFromString str =
         "None" -> Just None
         _ -> Nothing
 
-
 sortToCompareFn : SortBy -> (Post -> Post -> Order)
 sortToCompareFn sort =
     case sort of
@@ -44,7 +39,6 @@ sortToCompareFn sort =
         Title -> \postA postB -> compare postA.title postB.title
         Posted -> \postA postB -> compare (Time.posixToMillis postB.time) (Time.posixToMillis postA.time)
         None -> \_ _ -> EQ
-
 
 type alias PostsConfig =
     { postsToFetch : Int
@@ -54,11 +48,9 @@ type alias PostsConfig =
     , showTextOnly : Bool
     }
 
-
 defaultConfig : PostsConfig
 defaultConfig =
     PostsConfig 50 10 None False True
-
 
 type Change
     = ChangePostsToShow Int
@@ -66,30 +58,39 @@ type Change
     | ChangeShowJobs Bool
     | ChangeShowTextOnly Bool
 
-
 applyChanges : Change -> PostsConfig -> PostsConfig
 applyChanges change config =
     case change of
         ChangePostsToShow postsToShow ->
             { config | postsToShow = postsToShow }
-
         ChangeSortBy sortBy ->
             { config | sortBy = sortBy }
-
         ChangeShowJobs showJobs ->
             { config | showJobs = showJobs }
-
         ChangeShowTextOnly showTextOnly ->
             { config | showTextOnly = showTextOnly }
 
-
+-- Filter posts based on current configuration
 filterPosts : PostsConfig -> List Post -> List Post
 filterPosts config posts =
     let
-        sortedPosts = List.sortWith (sortToCompareFn config.sortBy) posts
+        -- Filter for text-only posts if the config specifies so
+        filteredTextOnlyPosts =
+            if config.showTextOnly then
+                posts
+            else
+                List.filter (\post -> post.url /= Nothing) posts
+
+        -- Filter for job posts if the config specifies so
+        filteredJobPosts =
+            if config.showJobs then
+                filteredTextOnlyPosts
+            else
+                List.filter (\post -> post.type_ /= "job") filteredTextOnlyPosts
+
+        -- Sort the posts based on the specified sortBy criterion
+        sortedPosts =
+            List.sortWith (sortToCompareFn config.sortBy) filteredJobPosts
     in
-    case config.postsToShow of
-        10 -> List.take 10 sortedPosts
-        25 -> List.take 25 sortedPosts
-        50 -> List.take 50 sortedPosts
-        _ -> sortedPosts
+    -- Limit the number of posts to display
+    List.take config.postsToShow sortedPosts

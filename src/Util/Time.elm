@@ -1,7 +1,7 @@
 module Util.Time exposing (..)
 
 import Time
-
+import Basics exposing (remainderBy)
 
 type Date
     = Date { year : Int, month : Time.Month, day : Int }
@@ -138,10 +138,28 @@ durationBetween (Time.millisToPosix 1000) (Time.millisToPosix 1000) --> Nothing
 ```
 
 -}
+
+
 durationBetween : Time.Posix -> Time.Posix -> Maybe Duration
-durationBetween _ _ =
-    -- Nothing
-    Debug.todo "durationBetween"
+durationBetween t1 t2 =
+    let
+        millis1 = Time.posixToMillis t1
+        millis2 = Time.posixToMillis t2
+        diffMillis = millis2 - millis1
+    in
+    if diffMillis <= 0 then
+        Nothing
+    else
+        let
+            totalSeconds = diffMillis // 1000
+            seconds = remainderBy 60 totalSeconds
+            totalMinutes = totalSeconds // 60
+            minutes = remainderBy 60 totalMinutes
+            totalHours = totalMinutes // 60
+            hours = remainderBy 24 totalHours
+            days = totalHours // 24
+        in
+        Just { seconds = seconds, minutes = minutes, hours = hours, days = days }
 
 
 {-| Format a `Duration` as a human readable string
@@ -164,6 +182,21 @@ durationBetween _ _ =
 
 -}
 formatDuration : Duration -> String
-formatDuration _ =
-    -- ""
-    Debug.todo "formatDuration"
+formatDuration duration =
+    let
+        formatUnit value singular plural =
+            if value == 1 then
+                singular
+            else
+                plural
+
+        secondsString = if duration.seconds > 0 then Just (String.fromInt duration.seconds ++ formatUnit duration.seconds " second" " seconds") else Nothing
+        minutesString = if duration.minutes > 0 then Just (String.fromInt duration.minutes ++ formatUnit duration.minutes " minute" " minutes") else Nothing
+        hoursString = if duration.hours > 0 then Just (String.fromInt duration.hours ++ formatUnit duration.hours " hour" " hours") else Nothing
+        daysString = if duration.days > 0 then Just (String.fromInt duration.days ++ formatUnit duration.days " day" " days") else Nothing
+
+        parts = List.filterMap identity [daysString, hoursString, minutesString, secondsString]
+    in
+    case parts of
+        [] -> "just now"
+        _ -> String.join " " parts ++ " ago"

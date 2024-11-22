@@ -9211,17 +9211,48 @@ var $author$project$Model$LoadingPosts = function (a) {
 	return {$: 'LoadingPosts', a: a};
 };
 var $author$project$Effect$NoEffect = {$: 'NoEffect'};
-var $author$project$Model$PostIds$advance = function (_v0) {
-	return _Debug_todo(
-		'Model.PostIds',
-		{
-			start: {line: 64, column: 5},
-			end: {line: 64, column: 15}
-		})('advance');
+var $author$project$Model$PostIds$PostIds = function (a) {
+	return {$: 'PostIds', a: a};
 };
 var $author$project$Cursor$current = function (_v0) {
 	var a = _v0.b;
 	return a;
+};
+var $author$project$Cursor$Cursor = F3(
+	function (a, b, c) {
+		return {$: 'Cursor', a: a, b: b, c: c};
+	});
+var $author$project$Cursor$forward = function (cursor) {
+	if (!cursor.c.b) {
+		var left = cursor.a;
+		var mid = cursor.b;
+		return $elm$core$Maybe$Nothing;
+	} else {
+		var left = cursor.a;
+		var mid = cursor.b;
+		var _v1 = cursor.c;
+		var r = _v1.a;
+		var rs = _v1.b;
+		return $elm$core$Maybe$Just(
+			A3(
+				$author$project$Cursor$Cursor,
+				A2($elm$core$List$cons, mid, left),
+				r,
+				rs));
+	}
+};
+var $author$project$Model$PostIds$advance = function (_v0) {
+	var ids = _v0.a;
+	var _v1 = $author$project$Cursor$forward(ids);
+	if (_v1.$ === 'Nothing') {
+		return $elm$core$Maybe$Nothing;
+	} else {
+		var newCursor = _v1.a;
+		return $elm$core$Maybe$Just(
+			_Utils_Tuple2(
+				$author$project$Cursor$current(newCursor),
+				$author$project$Model$PostIds$PostIds(newCursor)));
+	}
 };
 var $author$project$Model$PostIds$first = function (_v0) {
 	var ids = _v0.a;
@@ -9233,8 +9264,52 @@ var $author$project$Effect$GetPost = function (a) {
 var $author$project$Model$GotPost = function (a) {
 	return {$: 'GotPost', a: a};
 };
-var $elm$json$Json$Decode$fail = _Json_fail;
-var $author$project$Model$Post$decode = $elm$json$Json$Decode$fail('TODO');
+var $author$project$Model$Post$Post = F7(
+	function (by, id, score, title, url, time, type_) {
+		return {by: by, id: id, score: score, time: time, title: title, type_: type_, url: url};
+	});
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$json$Json$Decode$map = _Json_map1;
+var $elm$json$Json$Decode$map7 = _Json_map7;
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $elm$json$Json$Decode$succeed = _Json_succeed;
+var $elm$json$Json$Decode$maybe = function (decoder) {
+	return $elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, decoder),
+				$elm$json$Json$Decode$succeed($elm$core$Maybe$Nothing)
+			]));
+};
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Model$Post$decode = A8(
+	$elm$json$Json$Decode$map7,
+	$author$project$Model$Post$Post,
+	A2($elm$json$Json$Decode$field, 'by', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'score', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string),
+	A2(
+		$elm$json$Json$Decode$field,
+		'url',
+		$elm$json$Json$Decode$maybe($elm$json$Json$Decode$string)),
+	A2(
+		$elm$json$Json$Decode$field,
+		'time',
+		A2(
+			$elm$json$Json$Decode$map,
+			A2(
+				$elm$core$Basics$composeL,
+				$elm$time$Time$millisToPosix,
+				$elm$core$Basics$mul(1000)),
+			$elm$json$Json$Decode$int)),
+	A2($elm$json$Json$Decode$field, 'type', $elm$json$Json$Decode$string));
 var $author$project$Main$getPost = F2(
 	function (apiUrl, postId) {
 		return $author$project$Effect$GetPost(
@@ -9247,7 +9322,38 @@ var $author$project$Effect$GetItems = function (a) {
 var $author$project$Model$GotPostIds = function (a) {
 	return {$: 'GotPostIds', a: a};
 };
-var $author$project$Model$PostIds$decode = $elm$json$Json$Decode$fail('TODO');
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $author$project$Cursor$fromList = function (list) {
+	if (!list.b) {
+		return $elm$core$Maybe$Nothing;
+	} else {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(
+			A3($author$project$Cursor$Cursor, _List_Nil, x, xs));
+	}
+};
+var $author$project$Model$PostIds$fromList = function (ids) {
+	return A2(
+		$elm$core$Maybe$map,
+		$author$project$Model$PostIds$PostIds,
+		$author$project$Cursor$fromList(ids));
+};
+var $author$project$Model$PostIds$fromListDecoder = function (ids) {
+	var _v0 = $author$project$Model$PostIds$fromList(ids);
+	if (_v0.$ === 'Nothing') {
+		return $elm$json$Json$Decode$succeed($elm$core$Maybe$Nothing);
+	} else {
+		var postIds = _v0.a;
+		return $elm$json$Json$Decode$succeed(
+			$elm$core$Maybe$Just(postIds));
+	}
+};
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $author$project$Model$PostIds$decode = A2(
+	$elm$json$Json$Decode$andThen,
+	$author$project$Model$PostIds$fromListDecoder,
+	$elm$json$Json$Decode$list($elm$json$Json$Decode$int));
 var $author$project$Main$getItems = F2(
 	function (apiUrl, item) {
 		return $author$project$Effect$GetItems(
@@ -9387,9 +9493,7 @@ var $author$project$Main$update = F2(
 				{state: newState}),
 			cmd);
 	});
-var $elm$json$Json$Decode$map = _Json_map1;
 var $elm$json$Json$Decode$map2 = _Json_map2;
-var $elm$json$Json$Decode$succeed = _Json_succeed;
 var $elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	switch (handler.$) {
 		case 'Normal':
@@ -9792,13 +9896,165 @@ var $author$project$View$Posts$postTable = F3(
 					A2($elm$core$List$map, $author$project$View$Posts$postRow, posts))
 				]));
 	});
+var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$label = _VirtualDom_node('label');
+var $elm$html$Html$option = _VirtualDom_node('option');
+var $elm$html$Html$select = _VirtualDom_node('select');
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$View$Posts$postsConfigView = function (_v0) {
-	return _Debug_todo(
-		'View.Posts',
-		{
-			start: {line: 83, column: 5},
-			end: {line: 83, column: 15}
-		})('postsConfigView');
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$label,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$for('select-posts-per-page')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Posts per page: ')
+					])),
+				A2(
+				$elm$html$Html$select,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$id('select-posts-per-page')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('10')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('10')
+							])),
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('25')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('25')
+							])),
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('50')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('50')
+							]))
+					])),
+				A2(
+				$elm$html$Html$label,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$for('select-sort-by')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Sort by: ')
+					])),
+				A2(
+				$elm$html$Html$select,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$id('select-sort-by')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('score')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Score')
+							])),
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('title')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Title')
+							])),
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('date')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Date posted')
+							])),
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('unsorted')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Unsorted')
+							]))
+					])),
+				A2(
+				$elm$html$Html$label,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$for('checkbox-show-job-posts')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Show job posts: ')
+					])),
+				A2(
+				$elm$html$Html$input,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$type_('checkbox'),
+						$elm$html$Html$Attributes$id('checkbox-show-job-posts')
+					]),
+				_List_Nil),
+				A2(
+				$elm$html$Html$label,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$for('checkbox-show-text-onlyposts')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Show text-only posts: ')
+					])),
+				A2(
+				$elm$html$Html$input,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$type_('checkbox'),
+						$elm$html$Html$Attributes$id('checkbox-show-text-onlyposts')
+					]),
+				_List_Nil)
+			]));
 };
 var $author$project$Main$view = function (model) {
 	var title = _Utils_eq(model.config.mode, $author$project$Model$Dev) ? 'HackerNews (DEV)' : 'HackerNews';
@@ -9924,7 +10180,6 @@ var $author$project$SimulatedEffect$fromLoadedState = function () {
 		afterFirstRequest,
 		posts);
 }();
-var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $author$project$TestData$jobPosts = _List_fromArray(
 	[
 		{
@@ -10872,11 +11127,6 @@ var $author$project$Console$Text$Texts = function (a) {
 	return {$: 'Texts', a: a};
 };
 var $author$project$Console$Text$concat = $author$project$Console$Text$Texts;
-var $elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
 var $author$project$Console$Text$Dark = {$: 'Dark'};
 var $author$project$Console$Text$dark = function (txt) {
 	if (txt.$ === 'Text') {
@@ -13119,7 +13369,6 @@ var $author$project$Test$Runner$Node$Dispatch = function (a) {
 	return {$: 'Dispatch', a: a};
 };
 var $elm$json$Json$Decode$decodeValue = _Json_run;
-var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $author$project$Test$Runner$JsMessage$Summary = F3(
 	function (a, b, c) {
 		return {$: 'Summary', a: a, b: b, c: c};
@@ -13127,11 +13376,9 @@ var $author$project$Test$Runner$JsMessage$Summary = F3(
 var $author$project$Test$Runner$JsMessage$Test = function (a) {
 	return {$: 'Test', a: a};
 };
-var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$fail = _Json_fail;
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
-var $elm$json$Json$Decode$list = _Json_decodeList;
 var $elm$json$Json$Decode$map3 = _Json_map3;
-var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Test$Runner$JsMessage$todoDecoder = A3(
 	$elm$json$Json$Decode$map2,
 	F2(
@@ -13829,7 +14076,6 @@ var $elm_explorations$test$Test$Html$Selector$Internal$Tag = function (a) {
 var $elm_explorations$test$Test$Html$Selector$tag = function (name) {
 	return $elm_explorations$test$Test$Html$Selector$Internal$Tag(name);
 };
-var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $author$project$PostsViewTests$selectShowJobPostsCheckbox = $elm_explorations$test$Test$Html$Selector$all(
 	_List_fromArray(
 		[
@@ -13883,10 +14129,6 @@ var $elm$core$Maybe$andThen = F2(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Cursor$Cursor = F3(
-	function (a, b, c) {
-		return {$: 'Cursor', a: a, b: b, c: c};
-	});
 var $author$project$Cursor$back = function (cursor) {
 	if (!cursor.a.b) {
 		var mid = cursor.b;
@@ -13904,35 +14146,6 @@ var $author$project$Cursor$back = function (cursor) {
 				ls,
 				l,
 				A2($elm$core$List$cons, mid, right)));
-	}
-};
-var $author$project$Cursor$forward = function (cursor) {
-	if (!cursor.c.b) {
-		var left = cursor.a;
-		var mid = cursor.b;
-		return $elm$core$Maybe$Nothing;
-	} else {
-		var left = cursor.a;
-		var mid = cursor.b;
-		var _v1 = cursor.c;
-		var r = _v1.a;
-		var rs = _v1.b;
-		return $elm$core$Maybe$Just(
-			A3(
-				$author$project$Cursor$Cursor,
-				A2($elm$core$List$cons, mid, left),
-				r,
-				rs));
-	}
-};
-var $author$project$Cursor$fromList = function (list) {
-	if (!list.b) {
-		return $elm$core$Maybe$Nothing;
-	} else {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(
-			A3($author$project$Cursor$Cursor, _List_Nil, x, xs));
 	}
 };
 var $author$project$Cursor$length = function (_v0) {
@@ -14181,9 +14394,6 @@ var $author$project$ExampleTests$CursorTests$suite = A2(
 					})
 				]))
 		]));
-var $author$project$Model$PostIds$PostIds = function (a) {
-	return {$: 'PostIds', a: a};
-};
 var $author$project$ExampleTests$ModelPostIdsTests$suite = A2(
 	$elm_explorations$test$Test$describe,
 	'module Model.PostIds',
@@ -14341,21 +14551,55 @@ var $author$project$Util$Time$Duration = F4(
 		return {days: days, hours: hours, minutes: minutes, seconds: seconds};
 	});
 var $author$project$Util$Time$durationBetween = F2(
-	function (_v0, _v1) {
-		return _Debug_todo(
-			'Util.Time',
-			{
-				start: {line: 144, column: 5},
-				end: {line: 144, column: 15}
-			})('durationBetween');
+	function (t1, t2) {
+		var millis2 = $elm$time$Time$posixToMillis(t2);
+		var millis1 = $elm$time$Time$posixToMillis(t1);
+		var diffMillis = millis2 - millis1;
+		if (diffMillis <= 0) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var totalSeconds = (diffMillis / 1000) | 0;
+			var totalMinutes = (totalSeconds / 60) | 0;
+			var totalHours = (totalMinutes / 60) | 0;
+			var seconds = totalSeconds % 60;
+			var minutes = totalMinutes % 60;
+			var hours = totalHours % 24;
+			var days = (totalHours / 24) | 0;
+			return $elm$core$Maybe$Just(
+				{days: days, hours: hours, minutes: minutes, seconds: seconds});
+		}
 	});
-var $author$project$Util$Time$formatDuration = function (_v0) {
-	return _Debug_todo(
-		'Util.Time',
-		{
-			start: {line: 169, column: 5},
-			end: {line: 169, column: 15}
-		})('formatDuration');
+var $author$project$Util$Time$formatDuration = function (duration) {
+	var formatUnit = F3(
+		function (value, singular, plural) {
+			return (value === 1) ? singular : plural;
+		});
+	var hoursString = (duration.hours > 0) ? $elm$core$Maybe$Just(
+		_Utils_ap(
+			$elm$core$String$fromInt(duration.hours),
+			A3(formatUnit, duration.hours, ' hour', ' hours'))) : $elm$core$Maybe$Nothing;
+	var minutesString = (duration.minutes > 0) ? $elm$core$Maybe$Just(
+		_Utils_ap(
+			$elm$core$String$fromInt(duration.minutes),
+			A3(formatUnit, duration.minutes, ' minute', ' minutes'))) : $elm$core$Maybe$Nothing;
+	var secondsString = (duration.seconds > 0) ? $elm$core$Maybe$Just(
+		_Utils_ap(
+			$elm$core$String$fromInt(duration.seconds),
+			A3(formatUnit, duration.seconds, ' second', ' seconds'))) : $elm$core$Maybe$Nothing;
+	var daysString = (duration.days > 0) ? $elm$core$Maybe$Just(
+		_Utils_ap(
+			$elm$core$String$fromInt(duration.days),
+			A3(formatUnit, duration.days, ' day', ' days'))) : $elm$core$Maybe$Nothing;
+	var parts = A2(
+		$elm$core$List$filterMap,
+		$elm$core$Basics$identity,
+		_List_fromArray(
+			[daysString, hoursString, minutesString, secondsString]));
+	if (!parts.b) {
+		return 'just now';
+	} else {
+		return A2($elm$core$String$join, ' ', parts) + ' ago';
+	}
 };
 var $author$project$ExampleTests$UtilTimeTests$suite = A2(
 	$elm_explorations$test$Test$describe,
@@ -14656,7 +14900,6 @@ var $elm$json$Json$Decode$dict = function (decoder) {
 		$elm$json$Json$Decode$keyValuePairs(decoder));
 };
 var $elm_explorations$test$Test$Html$Internal$ElmHtml$Constants$eventKey = 'a0';
-var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $elm_explorations$test$Test$Html$Internal$ElmHtml$InternalTypes$decodeEvents = function (taggedEventDecoder) {
 	return $elm$json$Json$Decode$oneOf(
 		_List_fromArray(
@@ -14759,14 +15002,6 @@ var $elm_explorations$test$Test$Html$Internal$ElmHtml$InternalTypes$decodeStyles
 			$elm$json$Json$Decode$succeed($elm$core$Dict$empty)
 		]));
 var $elm$json$Json$Decode$map5 = _Json_map5;
-var $elm$json$Json$Decode$maybe = function (decoder) {
-	return $elm$json$Json$Decode$oneOf(
-		_List_fromArray(
-			[
-				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, decoder),
-				$elm$json$Json$Decode$succeed($elm$core$Maybe$Nothing)
-			]));
-};
 var $elm_explorations$test$Test$Html$Internal$ElmHtml$InternalTypes$decodeFacts = function (_v0) {
 	var taggers = _v0.a;
 	var eventDecoder = _v0.b;
@@ -22258,7 +22493,6 @@ var $elm_explorations$test$Test$Html$Event$input = function (value) {
 				])));
 };
 var $elm_explorations$test$Test$Html$Selector$selected = $elm_explorations$test$Test$Html$Selector$Internal$namedBoolAttr('selected');
-var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$MainTests$suite = A2(
 	$elm_explorations$test$Test$describe,
 	'module Main',
@@ -24642,21 +24876,23 @@ var $author$project$Model$PostsConfig$sortToCompareFn = function (sort) {
 var $elm$core$List$sortWith = _List_sortWith;
 var $author$project$Model$PostsConfig$filterPosts = F2(
 	function (config, posts) {
+		var filteredTextOnlyPosts = config.showTextOnly ? posts : A2(
+			$elm$core$List$filter,
+			function (post) {
+				return !_Utils_eq(post.url, $elm$core$Maybe$Nothing);
+			},
+			posts);
+		var filteredJobPosts = config.showJobs ? filteredTextOnlyPosts : A2(
+			$elm$core$List$filter,
+			function (post) {
+				return post.type_ !== 'job';
+			},
+			filteredTextOnlyPosts);
 		var sortedPosts = A2(
 			$elm$core$List$sortWith,
 			$author$project$Model$PostsConfig$sortToCompareFn(config.sortBy),
-			posts);
-		var _v0 = config.postsToShow;
-		switch (_v0) {
-			case 10:
-				return A2($elm$core$List$take, 10, sortedPosts);
-			case 25:
-				return A2($elm$core$List$take, 25, sortedPosts);
-			case 50:
-				return A2($elm$core$List$take, 50, sortedPosts);
-			default:
-				return sortedPosts;
-		}
+			filteredJobPosts);
+		return A2($elm$core$List$take, config.postsToShow, sortedPosts);
 	});
 var $elm_explorations$test$Expect$onFail = F2(
 	function (str, expectation) {
@@ -25779,7 +26015,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "\\\\.\\pipe\\elm_test-544-1";
+var pipeFilename = "\\\\.\\pipe\\elm_test-10908-1";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 
