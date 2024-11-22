@@ -1,9 +1,8 @@
-module Model.PostsConfig exposing
-    (Change(..), PostsConfig, SortBy(..), applyChanges, defaultConfig, filterPosts, sortFromString, sortOptions, sortToCompareFn, sortToString)
+module Model.PostsConfig exposing (Change(..), PostsConfig, SortBy(..), applyChanges, defaultConfig, filterPosts, sortFromString, sortOptions, sortToCompareFn, sortToString)
 
-import Html.Attributes exposing (scope)
 import Model.Post exposing (Post)
 import Time
+import List exposing (filter, sortWith, take)
 
 type SortBy
     = Score
@@ -18,27 +17,40 @@ sortOptions =
 sortToString : SortBy -> String
 sortToString sort =
     case sort of
-        Score -> "Score"
-        Title -> "Title"
-        Posted -> "Posted"
-        None -> "None"
+        Score ->
+            "Score"
+        Title ->
+            "Title"
+        Posted ->
+            "Posted"
+        None ->
+            "None"
 
 sortFromString : String -> Maybe SortBy
-sortFromString str =
-    case str of
-        "Score" -> Just Score
-        "Title" -> Just Title
-        "Posted" -> Just Posted
-        "None" -> Just None
-        _ -> Nothing
+sortFromString s =
+    case s of
+        "Score" ->
+            Just Score
+        "Title" ->
+            Just Title
+        "Posted" ->
+            Just Posted
+        "None" ->
+            Just None
+        _ ->
+            Nothing
 
 sortToCompareFn : SortBy -> (Post -> Post -> Order)
 sortToCompareFn sort =
     case sort of
-        Score -> \postA postB -> compare postB.score postA.score
-        Title -> \postA postB -> compare postA.title postB.title
-        Posted -> \postA postB -> compare (Time.posixToMillis postB.time) (Time.posixToMillis postA.time)
-        None -> \_ _ -> EQ
+        Score ->
+            \postA postB -> compare postB.score postA.score
+        Title ->
+            \postA postB -> compare postA.title postB.title
+        Posted ->
+            \postA postB -> compare (Time.posixToMillis postB.time) (Time.posixToMillis postA.time)
+        None ->
+            \_ _ -> EQ
 
 type alias PostsConfig =
     { postsToFetch : Int
@@ -53,44 +65,21 @@ defaultConfig =
     PostsConfig 50 10 None False True
 
 type Change
-    = ChangePostsToShow Int
-    | ChangeSortBy SortBy
-    | ChangeShowJobs Bool
-    | ChangeShowTextOnly Bool
+    = ChangeTODO
 
 applyChanges : Change -> PostsConfig -> PostsConfig
-applyChanges change config =
-    case change of
-        ChangePostsToShow postsToShow ->
-            { config | postsToShow = postsToShow }
-        ChangeSortBy sortBy ->
-            { config | sortBy = sortBy }
-        ChangeShowJobs showJobs ->
-            { config | showJobs = showJobs }
-        ChangeShowTextOnly showTextOnly ->
-            { config | showTextOnly = showTextOnly }
+applyChanges _ config =
+    config -- Implement as needed
 
--- Filter posts based on current configuration
 filterPosts : PostsConfig -> List Post -> List Post
 filterPosts config posts =
     let
-        -- Filter for text-only posts if the config specifies so
-        filteredTextOnlyPosts =
-            if config.showTextOnly then
-                posts
-            else
-                List.filter (\post -> post.url /= Nothing) posts
+        filteredPosts =
+            posts
+                |> filter (\post -> if not config.showTextOnly then post.type_ /= "text" else True)
+                |> filter (\post -> if not config.showJobs then post.type_ /= "job" else True)
 
-        -- Filter for job posts if the config specifies so
-        filteredJobPosts =
-            if config.showJobs then
-                filteredTextOnlyPosts
-            else
-                List.filter (\post -> post.type_ /= "job") filteredTextOnlyPosts
-
-        -- Sort the posts based on the specified sortBy criterion
         sortedPosts =
-            List.sortWith (sortToCompareFn config.sortBy) filteredJobPosts
+            List.sortWith (sortToCompareFn config.sortBy) filteredPosts
     in
-    -- Limit the number of posts to display
-    List.take config.postsToShow sortedPosts
+    take config.postsToShow sortedPosts
