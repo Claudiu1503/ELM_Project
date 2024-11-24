@@ -65,12 +65,24 @@ defaultConfig : PostsConfig
 defaultConfig =
     PostsConfig 50 10 None False True
 
+{-| A type that describes what option changed and how
+-}
 type Change
-    = ChangeTODO
+    = SetPostsToShow Int
+    | SetSortBy SortBy
+    | ToggleShowJobs Bool
+    | ToggleShowTextOnly Bool
 
+
+{-| Given a change and the current configuration, return a new configuration with the changes applied
+-}
 applyChanges : Change -> PostsConfig -> PostsConfig
-applyChanges _ config =
-    config -- Implement as needed
+applyChanges change config =
+   case change of
+       SetPostsToShow p -> {config | postsToShow = p} --change only the specific field
+       SetSortBy s -> {config | sortBy = s}
+       ToggleShowJobs j -> {config | showJobs = j}
+       ToggleShowTextOnly t -> {config | showTextOnly = t}
 
 filterPosts : PostsConfig -> List Post -> List Post
 filterPosts config posts =

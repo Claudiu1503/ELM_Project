@@ -4355,7 +4355,10 @@ var $elm$core$Set$toList = function (_v0) {
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
-var $author$project$Test$Reporter$Reporter$JsonReport = {$: 'JsonReport'};
+var $author$project$Test$Reporter$Reporter$ConsoleReport = function (a) {
+	return {$: 'ConsoleReport', a: a};
+};
+var $author$project$Console$Text$Monochrome = {$: 'Monochrome'};
 var $elm$core$Debug$todo = _Debug_todo;
 var $author$project$Test$Runner$Node$checkHelperReplaceMe___ = function (_v0) {
 	return _Debug_todo(
@@ -24779,8 +24782,29 @@ var $author$project$PostsViewTests$SortBySelect = function (a) {
 	return {$: 'SortBySelect', a: a};
 };
 var $author$project$Model$PostsConfig$applyChanges = F2(
-	function (_v0, config) {
-		return config;
+	function (change, config) {
+		switch (change.$) {
+			case 'SetPostsToShow':
+				var p = change.a;
+				return _Utils_update(
+					config,
+					{postsToShow: p});
+			case 'SetSortBy':
+				var s = change.a;
+				return _Utils_update(
+					config,
+					{sortBy: s});
+			case 'ToggleShowJobs':
+				var j = change.a;
+				return _Utils_update(
+					config,
+					{showJobs: j});
+			default:
+				var t = change.a;
+				return _Utils_update(
+					config,
+					{showTextOnly: t});
+		}
 	});
 var $elm_explorations$test$Test$Runner$Failure$ListDiff = F2(
 	function (a, b) {
@@ -25907,7 +25931,7 @@ var $author$project$Test$Generated$Main$main = A2(
 		paths: _List_fromArray(
 			['C:\\Users\\Adrianc\\Desktop\\PF\\PROIECT\\proj\\tests\\ExampleTests\\CursorTests.elm', 'C:\\Users\\Adrianc\\Desktop\\PF\\PROIECT\\proj\\tests\\ExampleTests\\ModelPostIdsTests.elm', 'C:\\Users\\Adrianc\\Desktop\\PF\\PROIECT\\proj\\tests\\ExampleTests\\ModelPostsConfigTests.elm', 'C:\\Users\\Adrianc\\Desktop\\PF\\PROIECT\\proj\\tests\\ExampleTests\\UtilTimeTests.elm', 'C:\\Users\\Adrianc\\Desktop\\PF\\PROIECT\\proj\\tests\\MainTests.elm', 'C:\\Users\\Adrianc\\Desktop\\PF\\PROIECT\\proj\\tests\\PostsConfigTests.elm', 'C:\\Users\\Adrianc\\Desktop\\PF\\PROIECT\\proj\\tests\\PostsViewTests.elm', 'C:\\Users\\Adrianc\\Desktop\\PF\\PROIECT\\proj\\tests\\PostTests.elm', 'C:\\Users\\Adrianc\\Desktop\\PF\\PROIECT\\proj\\tests\\SimulatedEffect.elm', 'C:\\Users\\Adrianc\\Desktop\\PF\\PROIECT\\proj\\tests\\TestData.elm', 'C:\\Users\\Adrianc\\Desktop\\PF\\PROIECT\\proj\\tests\\TestUtils.elm']),
 		processes: 8,
-		report: $author$project$Test$Reporter$Reporter$JsonReport,
+		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$Monochrome),
 		runs: 100,
 		seed: 376158560164992
 	},
@@ -25990,7 +26014,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "\\\\.\\pipe\\elm_test-13568-1";
+var pipeFilename = "\\\\.\\pipe\\elm_test-13132-1";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 
