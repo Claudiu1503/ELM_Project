@@ -8,9 +8,8 @@ import Html.Attributes exposing (href, type_)
 import Model exposing (AppState(..), Config, LoadingPostsState, Mode(..), Model, Msg(..))
 import Model.Post as Post
 import Model.PostIds as PostIds exposing (HackerNewsItem(..))
-import Model.PostsConfig
 import View.Posts exposing (postTable, postsConfigView)
-
+import Model.PostsConfig exposing (..)
 
 prodFlags : Config
 prodFlags =
@@ -148,8 +147,10 @@ update msg model =
                             ( Model.FailedToLoad err, Effect.NoEffect )
 
                 ( Model.LoadedPosts state, ConfigChanged change ) ->
-                    -- ( Model.LoadedPosts state, Effect.NoEffect )
-                    ( Debug.todo "update the config in the update function", Effect.NoEffect )
+                                    let
+                                      prevConfig = state.config
+                                      updatedConfig = (applyChanges change prevConfig)
+                                    in (Model.LoadedPosts {state | config = updatedConfig}, Effect.NoEffect)
 
                 ( state, _ ) ->
                     ( state, Effect.NoEffect )
