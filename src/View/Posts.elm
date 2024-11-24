@@ -116,7 +116,7 @@ postsConfigView config =
      ]
      ,div[]
      [
-      input [type_ "checkbox", id "checkbox-show-text-onlyposts", onCheck (\checked -> ConfigChanged (ToggleShowTextOnly checked)) , checked config.showTextOnly] []
+      input [type_ "checkbox", id "checkbox-show-text-only-posts", onCheck (\checked -> ConfigChanged (ToggleShowTextOnly checked)) , checked config.showTextOnly] []
      , text "Show text only posts."
      ]
 

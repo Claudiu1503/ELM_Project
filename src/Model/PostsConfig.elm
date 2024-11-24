@@ -89,10 +89,16 @@ filterPosts config posts =
     let
         filteredPosts =
             posts
-                |> filter (\post -> if config.showTextOnly then post.type_ == "text" else True)
+                |> List.filter (\post ->
+                           if not config.showTextOnly then
+                               post.url /= Nothing
+                           else
+                               True
+                       )
                 |> filter (\post -> if not config.showJobs then post.type_ /= "job" else True)
 
         sortedPosts =
-            sortWith (sortToCompareFn config.sortBy) filteredPosts
+            take config.postsToShow filteredPosts
+
     in
-    take config.postsToShow sortedPosts
+    sortWith (sortToCompareFn config.sortBy) sortedPosts
